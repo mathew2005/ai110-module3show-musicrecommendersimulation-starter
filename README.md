@@ -169,6 +169,32 @@ The flat scheme loses the most discrimination because energy, tempo, and acousti
 
 The top result was Sunrise City (score 12.30), which matched on both genre (pop) and mood (happy) for a combined +5.0 before any numeric features were counted. Gym Hero ranked second despite a mood mismatch because a genre match alone is worth 3.0 points. Rooftop Lights ranked third with a mood match but no genre match, confirming that genre outweighs mood in the scoring rule. Results 4 and 5 had no categorical matches and scored on numeric proximity only, dropping more than 2 points below the categorical tier.
 
+### Experiment 3: Weight shift (genre x1.5, energy x5) and mood removal
+
+Two sensitivity experiments were run across all three standard profiles.
+
+**Experiment A: double energy weight, halve genre weight**
+
+| Profile | Original top 3 | Exp A top 3 |
+|---|---|---|
+| High-Energy Pop | Sunrise City, Gym Hero, Rooftop Lights | Sunrise City, Rooftop Lights, Gym Hero |
+| Chill Lofi | Library Rain, Midnight Coding, Focus Flow | Library Rain, Midnight Coding, Focus Flow |
+| Deep Intense Rock | Storm Runner, Gym Hero, Iron Verdict | Storm Runner, Gym Hero, Iron Verdict |
+
+Only one swap occurred (ranks 2 and 3 in the pop profile). The #1 song did not change in any profile. The catalog is too small for moderate weight changes to matter much when one song dominates.
+
+**Experiment B: remove mood check entirely**
+
+| Profile | Original top 3 | No mood top 3 |
+|---|---|---|
+| High-Energy Pop | Sunrise City, Gym Hero, Rooftop Lights | Sunrise City, Gym Hero, Rooftop Lights |
+| Chill Lofi | Library Rain, Midnight Coding, Focus Flow | Focus Flow, Library Rain, Midnight Coding |
+| Deep Intense Rock | Storm Runner, Gym Hero, Iron Verdict | Storm Runner, Night Drive Loop, Iron Verdict |
+
+Removing mood had more impact. For Chill Lofi, Focus Flow jumped from 3rd to 1st because it no longer lost 2 points for having mood "focused" instead of "chill." For Deep Intense Rock, Gym Hero dropped out of the top 3 entirely — it was only there because of a mood match, and its numeric proximity alone was not strong enough to hold the position.
+
+**Key insight:** Gym Hero (pop/intense, energy 0.93) appeared in the top results for nearly every high-energy profile regardless of genre. This is a filter bubble — one song with strong numeric features ends up recommended to users with very different stated preferences, reducing diversity.
+
 ### Finalized Algorithm Recipe
 
 ```
@@ -189,6 +215,360 @@ and `max(0, 1 - |song_bpm - target_bpm| / 100)` for tempo.
 **Why energy (2.5) outweighs valence (2.0):** Energy is the single most discriminating numerical feature in this catalog. It spans 0.22 to 0.97 across 18 songs, a wider effective range than valence (0.18 to 0.84).
 
 **Why danceability (0.5) is lowest:** It is the most correlated feature. High energy + fast tempo already implies high danceability in most cases, so it adds little unique information.
+
+---
+
+## Profile Results
+
+### Profile 1: High-Energy Pop
+
+```
+================================================================
+  PROFILE: High-Energy Pop
+  genre=pop  mood=happy  energy=0.85  acoustic=False
+================================================================
+
+  #1  Sunrise City  -  Neon Echo
+       Genre: pop  |  Mood: happy  |  Energy: 0.82
+       Score: 12.27
+       Why  :
+              genre match (+3.0)
+              mood match (+2.0)
+              energy proximity (+2.42)
+              valence proximity (+1.96)
+              tempo proximity (+0.93)
+              danceability proximity (+0.49)
+              acousticness proximity (+1.47)
+
+  #2  Gym Hero  -  Max Pulse
+       Genre: pop  |  Mood: intense  |  Energy: 0.93
+       Score: 9.86
+       Why  :
+              genre match (+3.0)
+              mood match (+0.0)
+              energy proximity (+2.30)
+              valence proximity (+1.90)
+              tempo proximity (+0.93)
+              danceability proximity (+0.46)
+              acousticness proximity (+1.27)
+
+  #3  Rooftop Lights  -  Indigo Parade
+       Genre: indie pop  |  Mood: happy  |  Energy: 0.76
+       Score: 9.01
+       Why  :
+              genre match (+0.0)
+              mood match (+2.0)
+              energy proximity (+2.27)
+              valence proximity (+1.98)
+              tempo proximity (+0.99)
+              danceability proximity (+0.49)
+              acousticness proximity (+1.28)
+
+  #4  Golden Chain  -  Verse Theory
+       Genre: hip-hop  |  Mood: energetic  |  Energy: 0.85
+       Score: 6.77
+       Why  :
+              genre match (+0.0)
+              mood match (+0.0)
+              energy proximity (+2.50)
+              valence proximity (+1.80)
+              tempo proximity (+0.70)
+              danceability proximity (+0.45)
+              acousticness proximity (+1.32)
+
+  #5  Drop Zone  -  Frequency Drift
+       Genre: electronic  |  Mood: energetic  |  Energy: 0.96
+       Score: 6.48
+       Why  :
+              genre match (+0.0)
+              mood match (+0.0)
+              energy proximity (+2.23)
+              valence proximity (+1.74)
+              tempo proximity (+0.85)
+              danceability proximity (+0.43)
+              acousticness proximity (+1.23)
+================================================================
+```
+
+Sunrise City ranked #1 with both genre and mood matching (+5.0). The 2+ point gap between #3 and #4 shows where the categorical tier ends and pure numeric proximity begins.
+
+---
+
+### Profile 2: Chill Lofi
+
+```
+================================================================
+  PROFILE: Chill Lofi
+  genre=lofi  mood=chill  energy=0.38  acoustic=True
+================================================================
+
+  #1  Library Rain  -  Paper Lanterns
+       Genre: lofi  |  Mood: chill  |  Energy: 0.35
+       Score: 12.24
+       Why  :
+              genre match (+3.0)
+              mood match (+2.0)
+              energy proximity (+2.42)
+              valence proximity (+1.96)
+              tempo proximity (+0.96)
+              danceability proximity (+0.49)
+              acousticness proximity (+1.41)
+
+  #2  Midnight Coding  -  LoRoom
+       Genre: lofi  |  Mood: chill  |  Energy: 0.42
+       Score: 12.17
+       Why  :
+              genre match (+3.0)
+              mood match (+2.0)
+              energy proximity (+2.40)
+              valence proximity (+1.96)
+              tempo proximity (+0.98)
+              danceability proximity (+0.47)
+              acousticness proximity (+1.36)
+
+  #3  Focus Flow  -  LoRoom
+       Genre: lofi  |  Mood: focused  |  Energy: 0.4
+       Score: 10.34
+       Why  :
+              genre match (+3.0)
+              mood match (+0.0)
+              energy proximity (+2.45)
+              valence proximity (+1.98)
+              tempo proximity (+0.96)
+              danceability proximity (+0.48)
+              acousticness proximity (+1.47)
+
+  #4  Spacewalk Thoughts  -  Orbit Bloom
+       Genre: ambient  |  Mood: chill  |  Energy: 0.28
+       Score: 8.70
+       Why  :
+              genre match (+0.0)
+              mood match (+2.0)
+              energy proximity (+2.25)
+              valence proximity (+1.86)
+              tempo proximity (+0.84)
+              danceability proximity (+0.43)
+              acousticness proximity (+1.32)
+
+  #5  Dirt Road Letters  -  The Hollow Pines
+       Genre: folk  |  Mood: nostalgic  |  Energy: 0.33
+       Score: 7.04
+       Why  :
+              genre match (+0.0)
+              mood match (+0.0)
+              energy proximity (+2.38)
+              valence proximity (+1.92)
+              tempo proximity (+1.00)
+              danceability proximity (+0.44)
+              acousticness proximity (+1.30)
+================================================================
+```
+
+All three lofi songs surface in the top 3. Focus Flow (lofi/focused) ranks above Spacewalk Thoughts (ambient/chill) confirming genre match outweighs mood match.
+
+---
+
+### Profile 3: Deep Intense Rock
+
+```
+================================================================
+  PROFILE: Deep Intense Rock
+  genre=rock  mood=intense  energy=0.9  acoustic=False
+================================================================
+
+  #1  Storm Runner  -  Voltline
+       Genre: rock  |  Mood: intense  |  Energy: 0.91
+       Score: 12.12
+       Why  :
+              genre match (+3.0)
+              mood match (+2.0)
+              energy proximity (+2.48)
+              valence proximity (+1.84)
+              tempo proximity (+0.98)
+              danceability proximity (+0.47)
+              acousticness proximity (+1.35)
+
+  #2  Gym Hero  -  Max Pulse
+       Genre: pop  |  Mood: intense  |  Energy: 0.93
+       Score: 8.13
+       Why  :
+              genre match (+0.0)
+              mood match (+2.0)
+              energy proximity (+2.42)
+              valence proximity (+1.26)
+              tempo proximity (+0.82)
+              danceability proximity (+0.36)
+              acousticness proximity (+1.27)
+
+  #3  Iron Verdict  -  Ashfield
+       Genre: metal  |  Mood: angry  |  Energy: 0.97
+       Score: 6.45
+       Why  :
+              genre match (+0.0)
+              mood match (+0.0)
+              energy proximity (+2.33)
+              valence proximity (+1.56)
+              tempo proximity (+0.82)
+              danceability proximity (+0.48)
+              acousticness proximity (+1.26)
+
+  #4  Night Drive Loop  -  Neon Echo
+       Genre: synthwave  |  Mood: moody  |  Energy: 0.75
+       Score: 6.44
+       Why  :
+              genre match (+0.0)
+              mood match (+0.0)
+              energy proximity (+2.12)
+              valence proximity (+1.82)
+              tempo proximity (+0.60)
+              danceability proximity (+0.43)
+              acousticness proximity (+1.47)
+
+  #5  Drop Zone  -  Frequency Drift
+       Genre: electronic  |  Mood: energetic  |  Energy: 0.96
+       Score: 6.23
+       Why  :
+              genre match (+0.0)
+              mood match (+0.0)
+              energy proximity (+2.35)
+              valence proximity (+1.42)
+              tempo proximity (+0.90)
+              danceability proximity (+0.33)
+              acousticness proximity (+1.23)
+================================================================
+```
+
+Storm Runner is a perfect match. Gym Hero ranks #2 on mood match alone, beating Iron Verdict which is sonically closer but has no categorical match.
+
+---
+
+### Profile 4: Edge Case - High-Energy + Sad Mood
+
+```
+================================================================
+  PROFILE: Edge Case: High-Energy + Sad Mood
+  genre=blues  mood=sad  energy=0.9  acoustic=False
+================================================================
+
+  #1  Rainy Day Blues  -  Earl Macon
+       Genre: blues  |  Mood: sad  |  Energy: 0.3
+       Score: 9.01
+       Why  :
+              genre match (+3.0)
+              mood match (+2.0)
+              energy proximity (+1.00)
+              valence proximity (+1.86)
+              tempo proximity (+0.28)
+              danceability proximity (+0.34)
+              acousticness proximity (+0.53)
+
+  #2  Iron Verdict  -  Ashfield
+       Genre: metal  |  Mood: angry  |  Energy: 0.97
+       Score: 6.68
+       Why  :
+              genre match (+0.0)
+              mood match (+0.0)
+              energy proximity (+2.33)
+              valence proximity (+1.94)
+              tempo proximity (+0.72)
+              danceability proximity (+0.43)
+              acousticness proximity (+1.26)
+
+  #3  Storm Runner  -  Voltline
+       Genre: rock  |  Mood: intense  |  Energy: 0.91
+       Score: 6.53
+       ...
+
+  #4  Night Drive Loop  -  Neon Echo
+       Score: 6.09
+
+  #5  Drop Zone  -  Frequency Drift
+       Score: 5.88
+================================================================
+```
+
+The system is "tricked" here. Rainy Day Blues wins on genre+mood (+5.0) even though its energy (0.30) is far from the target (0.90). The conflicting signals cannot be reconciled — categorical weight always wins.
+
+---
+
+### Profile 5: Edge Case - Unknown Genre (reggae not in catalog)
+
+```
+================================================================
+  PROFILE: Edge Case: Genre Not In Catalog (reggae)
+  genre=reggae  mood=happy  energy=0.65  acoustic=True
+================================================================
+
+  #1  Rooftop Lights  -  Indigo Parade
+       Genre: indie pop  |  Mood: happy  |  Score: 8.13
+       genre match (+0.0), mood match (+2.0)
+
+  #2  Sunrise City  -  Neon Echo
+       Genre: pop  |  Mood: happy  |  Score: 7.73
+       genre match (+0.0), mood match (+2.0)
+
+  #3  Velvet Hours  -  Sable June
+       Genre: r&b  |  Mood: romantic  |  Score: 6.49
+       genre match (+0.0), mood match (+0.0)
+
+  #4  Front Porch Swing  -  Marigold & West
+       Genre: country  |  Score: 6.42
+
+  #5  Coffee Shop Stories  -  Slow Stereo
+       Genre: jazz  |  Score: 6.40
+================================================================
+```
+
+Genre match is always 0.0. The system falls back entirely to mood + numeric proximity and still returns sensible results, showing graceful degradation.
+
+---
+
+### Profile 6: Edge Case - All Neutral (0.5 everything)
+
+```
+================================================================
+  PROFILE: Edge Case: All Neutral (0.5 everything)
+  genre=pop  mood=happy  energy=0.5  acoustic=False
+================================================================
+
+  #1  Sunrise City  -  Neon Echo       Score: 10.66
+       genre match (+3.0), mood match (+2.0)
+
+  #2  Gym Hero  -  Max Pulse           Score: 8.14
+       genre match (+3.0), mood match (+0.0)
+
+  #3  Rooftop Lights  -  Indigo Parade Score: 7.61
+       genre match (+0.0), mood match (+2.0)
+
+  #4  Night Drive Loop  -  Neon Echo   Score: 6.62
+  #5  Velvet Hours  -  Sable June      Score: 6.28
+================================================================
+```
+
+Even with neutral numeric preferences, categorical anchors (genre+mood = +5.0) keep the ranking stable. Without them, scores would cluster and ordering would be nearly arbitrary.
+
+---
+
+### Profile 7: Edge Case - Acoustic Texture + Angry Mood
+
+```
+================================================================
+  PROFILE: Edge Case: Acoustic Texture + Angry Mood
+  genre=metal  mood=angry  energy=0.95  acoustic=True
+================================================================
+
+  #1  Iron Verdict  -  Ashfield        Score: 11.19
+       genre match (+3.0), mood match (+2.0)
+       acousticness proximity (+0.36)  <- penalized for being electronic
+
+  #2  Storm Runner  -  Voltline        Score: 5.48
+  #3  Night Drive Loop  -  Neon Echo   Score: 4.79
+  #4  Drop Zone  -  Frequency Drift    Score: 4.76
+  #5  Rainy Day Blues  -  Earl Macon   Score: 4.64
+================================================================
+```
+
+Iron Verdict wins at 11.19 despite `likes_acoustic=True` because genre+mood (+5.0) far outweighs the acousticness penalty. The gap between #1 and #2 is nearly 6 points — the largest in all profiles. This confirms: when genre and mood both match, no numeric mismatch can overcome them.
 
 ---
 

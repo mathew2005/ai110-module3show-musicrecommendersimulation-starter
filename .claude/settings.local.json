@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:beatstorapon.com)",
+      "WebFetch(domain:www.music-tomorrow.com)",
+      "WebFetch(domain:stratoflow.com)",
+      "Bash(python -m pytest tests/test_recommender.py -v)",
+      "Bash(python main.py)",
+      "Bash(python src/main.py)",
+      "Bash(python -c \":*)",
+      "Bash(python -m src.main)"
+    ]
+  }
+}
